@@ -7,13 +7,6 @@ import redis
 import redis_server
 import json
 
-# return Response({
-#     "user": UserSerializer(user, context=self.get_serializer_context()).data,
-#     "token": AuthToken.objects.create(user)[1]
-# })
-
-# encoded_jwt = jwt.encode({"some": "payload"}, "secret", algorithm="HS256")
-
 
 class UserAPI(APIView):
     def post(self, request, format=None):
