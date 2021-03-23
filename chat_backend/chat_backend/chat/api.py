@@ -10,51 +10,6 @@ import redis_server
 import json
 
 
-#     def get_object(self, pk):
-#         try:
-#             return Snippet.objects.get(pk=pk)
-#         except Snippet.DoesNotExist:
-#             raise Http404
-
-#     def get(self, request, pk, format=None):
-#         snippet = self.get_object(pk)
-#         serializer = SnippetSerializer(snippet)
-#         return Response(serializer.data)
-
-#     def put(self, request, pk, format=None):
-#         snippet = self.get_object(pk)
-#         serializer = SnippetSerializer(snippet, data=request.data)
-#         if serializer.is_valid():
-#             serializer.save()
-#             return Response(serializer.data)
-#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-# class UserAPI(APIView):
-#     def post(self, request, format=None):
-#         # user get_or_create
-#         user, created = User.objects.get_or_create(
-#             google_id=request.data['google_id'],
-#             email=request.data['email'],
-#             nickname=request.data['nickname'],
-#             user_type=request.data['user_type'])
-
-#         # jwt token response
-#         user_token = jwt.encode(
-#             {'user_id': user.id, 'email': user.email,
-#                 'nickname': user.nickname, 'user_type': user.user_type},
-#             "secret", algorithm="HS256")
-#         return JsonResponse({
-#             'user_token': user_token
-#         })
-
-#     elif request.method == 'PUT':
-#         tutorial_data = JSONParser().parse(request)
-#         tutorial_serializer = TutorialSerializer(tutorial, data=tutorial_data)
-#         if tutorial_serializer.is_valid():
-#             tutorial_serializer.save()
-#             return JsonResponse(tutorial_serializer.data)
-#         return JsonResponse(tutorial_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
 class RoomAPI(APIView):
     def get(self, request):
         if request.query_params.get('id'):
