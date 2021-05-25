@@ -5,7 +5,6 @@ import redis
 import json
 from .models import User
 from chat.models import Room
-# from .scheduler import roomScheduler
 from util.scheduler import roomScheduler
 from rest_framework import status
 from rest_framework.response import Response
@@ -14,14 +13,6 @@ from rest_framework.response import Response
 def status_response(self):
     content = {'msg': 'process is working'}
     return Response(content, status=status.HTTP_200_OK)
-
-
-def index(request):
-    return HttpResponse("유저앱의 기본 index주소")
-
-
-def hello(reqeust):
-    return HttpResponse("헬로하고 인사해자")
 
 
 def getMessage(request):
@@ -39,13 +30,12 @@ def getMessage(request):
             "msg": data,
         }))
 
-        return HttpResponse("잘되써")
+        return Response({}, status=status.HTTP_200_OK)
     else:
-        return HttpResponse("POST로 오지 않음")
+        return Response({"msg": "잘못된 요청입니다"}, status=status.HTTP_400_BAD_REQUEST)
 
 
 def disconnected(request):
-    content = {'msg': 'process is working'}
     if request.method == 'POST':
         try:
             data = request.body.decode('utf-8')
@@ -73,8 +63,8 @@ def disconnected(request):
 
                 roomScheduler.scheduleRemove(json.loads(data)['room_id'])
 
-            return HttpResponse()
+            return Response({}, status=status.HTTP_200_OK)
         except:
-            return HttpResponse()
+            return Response({"msg": "잘못된 요청입니다"}, status=status.HTTP_400_BAD_REQUEST)
     else:
-        return HttpResponse()
+        return Response({"msg": "잘못된 요청입니다"}, status=status.HTTP_400_BAD_REQUEST)

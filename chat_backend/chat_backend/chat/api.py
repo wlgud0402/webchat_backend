@@ -3,8 +3,8 @@ from .models import Room
 from .serializers import RoomSerializer, GetRoomSerializer
 from django.http import JsonResponse
 from rest_framework.response import Response
-import jwt
 from rest_framework import status
+import jwt
 import redis
 import redis_server
 import json
@@ -40,8 +40,8 @@ class RoomAPI(APIView):
                 'room_id': request.data['number'],
             }))
 
-            return JsonResponse({"room_uuid": uuid})
-        return JsonResponse(room_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"room_uuid": uuid})
+        return Response(room_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     # 방에 들어가기 => 비밀번호가 있다면 입력해야지!
     def post(self, request):
@@ -52,11 +52,11 @@ class RoomAPI(APIView):
             room_password = room.password
 
             if user_sent_password == room_password:
-                return JsonResponse({'uuid': room.uuid})
+                return Response({'uuid': room.uuid})
             else:
-                return JsonResponse({"msg": "비밀번호가 잘못되었습니다."})
+                return Response({"msg": "비밀번호가 잘못되었습니다."}, status=status.HTTP_400_BAD_REQUEST)
         else:
-            return JsonResponse({"msg": "잘못된 요청입니다."})
+            return Response({"msg": "잘못된 요청입니다."}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class GetRoomAPI(APIView):
@@ -65,10 +65,10 @@ class GetRoomAPI(APIView):
             room_uuid = request.query_params.get('uuid')
             try:
                 room = Room.objects.get(uuid=room_uuid)
-                return JsonResponse({"room_id": room.id, "room_name": room.name})
+                return Response({"room_id": room.id, "room_name": room.name})
             except:
-                return JsonResponse({"msg": "there is no room"})
-        return JsonResponse({'msg': "there is no uuid"})
+                return Response({"msg": "there is no room"}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({'msg': "there is no uuid"}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class RoomPasswordAPI(APIView):
@@ -79,7 +79,7 @@ class RoomPasswordAPI(APIView):
         room.password = room_password
         room.is_private = True
         room.save()
-        return JsonResponse({"msg": "비밀번호가 설정되었습니다."})
+        return Response({"msg": "비밀번호가 설정되었습니다."})
 
     # 비밀번호 없애기
     def put(self, request):
@@ -88,4 +88,4 @@ class RoomPasswordAPI(APIView):
         room.password = "NULL"
         room.is_private = False
         room.save()
-        return JsonResponse({"msg": "비밀번호가 해제되었습니다."})
+        return Response({"msg": "비밀번호가 해제되었습니다."})

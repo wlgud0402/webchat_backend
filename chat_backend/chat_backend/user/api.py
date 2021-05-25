@@ -1,11 +1,13 @@
+from rest_framework import status
 from rest_framework.views import APIView
-from .models import User
-from .serializers import UserSerializer, UserPeerSerializer
+from rest_framework.response import Response
 from django.http import JsonResponse
 import jwt
 import redis
 import redis_server
 import json
+from .models import User
+from .serializers import UserSerializer, UserPeerSerializer
 
 
 class UserAPI(APIView):
@@ -22,9 +24,7 @@ class UserAPI(APIView):
             {'user_id': user.id, 'email': user.email,
                 'nickname': user.nickname, 'user_type': user.user_type},
             "secret", algorithm="HS256")
-        return JsonResponse({
-            'user_token': user_token
-        })
+        return Response({'user_token': user_token})
 
     def get(self, request):
         # 다른사람 peer id를통해 받는정보 다른사람의 정보를 가져오기 위함\
@@ -32,15 +32,15 @@ class UserAPI(APIView):
         if request.query_params.get('peer_id'):
             peer_id = request.query_params.get('peer_id')
             user = User.objects.get(peer_id=peer_id)
-            return JsonResponse({"nickname": user.nickname,
-                                 "user_type": user.user_type})
+            return Response({"nickname": user.nickname, "user_type": user.user_type})
 
         if request.query_params.get('user_id'):
             user_id = request.query_params.get('user_id')
             user = User.objects.get(id=user_id)
-            return JsonResponse({'peer_id': user.peer_id})
+            return Response({'peer_id': user.peer_id})
+
         else:
-            return JsonResponse({'msg': "query_params 없이 get요청"})
+            return Response({'msg': "조건이 입력되지 않았습니다"}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class GuestUserAPI(APIView):
@@ -54,6 +54,7 @@ class GuestUserAPI(APIView):
             room_uuid=request.data['room_uuid'],
         )
 
+        # 퍼블리시를 통해 이벤트 전송
         r = redis.Redis(host='localhost', port=6379, db=0)
         r.publish('room-refresh', json.dumps({
             'room_id': request.data['room_id'],
@@ -65,7 +66,7 @@ class GuestUserAPI(APIView):
              'nickname': guest.nickname,
              'user_type': guest.user_type},
             "secret", algorithm="HS256")
-        return JsonResponse({'user_token': guest_token})
+        return Response({'user_token': guest_token})
 
 
 # 유저가 방에 입장
@@ -87,7 +88,7 @@ class UserPeerAPI(APIView):
         user.room_uuid = room_uuid
 
         user.save()
-        return JsonResponse({"H": "H"})
+        return Response({"msg": "유저가 방에 입장했습니다."}, status=status.HTTP_200_OK)
 
 
 class GetUserPeerAPI(APIView):
@@ -113,6 +114,4 @@ class ChangeUserNicknameAPI(APIView):
                 'nickname': user.nickname, 'user_type': user.user_type},
             "secret", algorithm="HS256")
 
-        return JsonResponse({
-            'user_token': new_user_token
-        })
+        return Response({'user_token': new_user_token})

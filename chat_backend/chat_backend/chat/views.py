@@ -3,25 +3,12 @@ import redis_server
 import json
 from django.shortcuts import render, HttpResponse
 from .models import Room
-# from .scheduler import roomScheduler
 from util.scheduler import roomScheduler
+from rest_framework import status
+from rest_framework.response import Response
 
 
-# r = redis.Redis(host='localhost', port=6379, db=0)
-
-
-def index(request):
-    if request.method == 'POST':
-        body = request.body.decode('utf-8')
-        data = json.loads(body)['data']
-    return HttpResponse("api요청 잘받았네요")
-
-
-def message(message):
-    return HttpResponse("메시지 받아오는곳 api/chat/message")
-
-
-def getMessage(request):
+def message(request):
     if request.method == 'POST':
         data = request.body.decode('utf-8')
         message = json.loads(data)['message']
@@ -38,9 +25,9 @@ def getMessage(request):
             "peer_id": peer_id
         }))
 
-        return HttpResponse("잘되써")
+        return Response({"msg": "처리가 완료되었습니다."}, status=status.HTTP_200_OK)
     else:
-        return HttpResponse("POST로 오지 않음")
+        return Response({"msg": "잘못된 요청입니다"}, status=status.HTTP_400_BAD_REQUEST)
 
 
 def changeroomstatus(request):
@@ -61,6 +48,6 @@ def changeroomstatus(request):
             # 클리닝 돌리고있는 스케쥴러 켄슬시킴
             roomScheduler.cancelRemove(room_id)
 
-        return HttpResponse("잘되써")
+        return Response({"msg": "처리가 완료되었습니다."}, status=status.HTTP_200_OK)
     else:
-        return HttpResponse("POST로 오지 않음")
+        return Response({"msg": "잘못된 요청입니다"}, status=status.HTTP_400_BAD_REQUEST)
